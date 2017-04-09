@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.InteropServices;
 
-namespace XGBoost
+namespace XGBoost.lib
 {
   public class Booster : IDisposable
   {
@@ -31,7 +31,7 @@ namespace XGBoost
         if (output == -1) throw new DllFailException(XGBOOST_NATIVE_METHODS.XGBGetLastError());
     }
 
-        public Booster(string fileName, int silent = 1)
+    public Booster(string fileName, int silent = 1)
     {
         IntPtr tempPtr;
         var newBooster = XGBOOST_NATIVE_METHODS.XGBoosterCreate(null, 0,out tempPtr); 
@@ -99,49 +99,15 @@ namespace XGBoost
       SetParameter("missing", ((float)parameters["missing"]).ToString(nfi));
     }
 
+    // doesn't support floats with commas (e.g. 0,5F)
     public void SetParametersGeneric(IDictionary<string, Object> parameters)
     {
-        foreach (var param in parameters)
-        {
-            if (param.Value != null)
-                SetParameter(param.Key, param.Value.ToString());
-        }
+      foreach (var param in parameters)
+      {
+        if (param.Value != null)
+          SetParameter(param.Key, param.Value.ToString());
+      }
     }
-
-    public string GetModelDumpArray(IntPtr predsPtr, ulong predsLen)
-    {
-            //string retSTring = string.Empty;
-            //var tempIntPr = Marshal.ReadIntPtr(predsPtr);
-            var firstString = Marshal.PtrToStringAuto(predsPtr);
-            //return firstString;
-            //var list = new List<string>();
-            //for (ulong i = 0; i < predsLen; i++)
-            //{
-            //    var strPtr = (IntPtr)Marshal.PtrToStructure(predsPtr, typeof(IntPtr));
-            //    list.Add(Marshal.PtrToStringAuto(strPtr));
-            //    predsPtr = new IntPtr(predsPtr.ToInt64() + IntPtr.Size);
-            //}
-            return string.Empty;
-
-
-
-
-
-            //var retStr = Marshal..(predsPtr, predsLen);
-            //return retStr;
-            //var length = unchecked((int)predsLen);
-            //var preds = new string[length];
-            //for (var i = 0; i < length; i++)
-            //{
-            //    var floatBytes = new byte[4];
-            //    for (var b = 0; b < 4; b++)
-            //    {
-            //        floatBytes[b] = Marshal.ReadByte(predsPtr, 4 * i + b);
-            //    }
-            //    preds[i] = BitConverter.ToString(floatBytes, 0);
-            //}
-            //return preds;
-        }
 
     public void PrintParameters(IDictionary<string, Object> parameters)
     {
@@ -175,27 +141,19 @@ namespace XGBoost
 
     public void Save(string fileName)
     {
-        XGBOOST_NATIVE_METHODS.XGBoosterSaveModel(handle, fileName);
+      XGBOOST_NATIVE_METHODS.XGBoosterSaveModel(handle, fileName);
     }
 
-        public string DumpModelEx(string fmap,
-                                 int with_stats,
-                                 string format)
-        {
+    public string[] DumpModelEx(string fmap, int with_stats, string format)
+    {
+      int length;
+      string[] dumpStr;
+      XGBOOST_NATIVE_METHODS.XGBoosterDumpModel(handle, fmap, with_stats, out length, out dumpStr);
+      return dumpStr;
+    }
 
-            IntPtr dumpPtr;
-            var dmats = new[] { handle};
-            ulong len;
-
-            //XGBOOST_NATIVE_METHODS.XGBoosterDumpModel(handle,fmap,with_stats,out length, out dumpPtr);
-            XGBOOST_NATIVE_METHODS.XGBoosterDumpModelEx(handle,fmap,with_stats,format, out len, out dumpPtr);
-
-            //return dumpStr;
-            return GetModelDumpArray(dumpPtr, len);
-        }
-
-        // Dispose pattern from MSDN documentation
-        public void Dispose()
+    // Dispose pattern from MSDN documentation
+    public void Dispose()
     {
       Dispose(true);
       GC.SuppressFinalize(this);

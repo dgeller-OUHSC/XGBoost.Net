@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace XGBoost
+namespace XGBoost.lib
 {
   public class XGBOOST_NATIVE_METHODS
   {
-    // use first dllLocation for development
-    // use second dllLocation for publishing (making sure it refers to correct next version of package)
-    //private const string dllLocation = "libxgboost.dll";
-    private const string dllLocation = "../../../packages/PicNet.XGBoost.0.1.0/lib/libxgboost.dll";
+    private const string dllLocation = "libxgboost.dll";
+    
+    static XGBOOST_NATIVE_METHODS() { DllLoader.LoadXGBoostDll(); }
 
     [DllImport(dllLocation)]
     public static extern string XGBGetLastError();
@@ -53,24 +52,12 @@ namespace XGBoost
     [DllImport(dllLocation)]
     public static extern int XGBoosterLoadModel(IntPtr bHandle, string fileName);
 
-
     [DllImport(dllLocation)]
     public static extern int XGDMatrixCreateFromFile(string fname, int silent, out IntPtr DMtrxHandle);
 
-
     [DllImport(dllLocation)]
-    public static extern int XGBoosterDumpModelEx(IntPtr handle,
-                                 string fmap,
-                                 int with_stats,
-                                 string format,
-                                 out ulong out_len,
-                                 out IntPtr dumpPtr);
-    [DllImport(dllLocation)]
-    public static extern int XGBoosterDumpModel(IntPtr handle,
-                          string fmap,
-                          int with_stats,
-                          out ulong out_len,
-                          out IntPtr dumpPtr);
-
-    }
+    public static extern int XGBoosterDumpModel(IntPtr handle, string fmap,
+                                                int with_stats, out int out_len,
+                                                out string[] dumpStr);
+  }
 }
