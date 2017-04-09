@@ -223,7 +223,7 @@ namespace XGBoost
         booster = new Booster(fileName);
     }
 
-    public string DumpModelEx(string fmap = "",
+    public string[] DumpModelEx(string fmap = "",
                                  int with_stats = 0,
                                  string format = "text")
     {
