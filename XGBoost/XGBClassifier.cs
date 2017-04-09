@@ -129,8 +129,8 @@ namespace XGBoost
     {
 
         var defaultParameters = new Dictionary<string, object>();
-        defaultParameters["max_depth"] = 3;
-        defaultParameters["learning_rate"] = 0.1f;
+        defaultParameters["max_depth"] = 6;
+        //defaultParameters["learning_rate"] = 0.3f;
         defaultParameters["n_estimators"] = 100;
         defaultParameters["silent"] = true;
         defaultParameters["objective"] = "binary:logistic";
@@ -204,9 +204,9 @@ namespace XGBoost
         booster = new Booster(fileName);
     }
 
-    public string[] DumpModelEx(string fmap = "",
+    public string DumpModelEx(string fmap = "",
                                  int with_stats = 0,
-                                 string format = "json")
+                                 string format = "text")
     {
         return booster.DumpModelEx(fmap, with_stats,format);
     }

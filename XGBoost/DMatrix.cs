@@ -7,7 +7,7 @@ namespace XGBoost
   {
     private bool disposed = false;
     private IntPtr _handle;
-    private float Missing = -1.0F; // arbitrary value used to represent a missing value
+        private float Missing = float.NaN; // arbitrary value used to represent a missing value
     
     public IntPtr Handle
     {
