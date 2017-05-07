@@ -125,27 +125,27 @@ namespace XGBoost
 
     public static Dictionary<string, object> GetDefaultParameters()
     {
-      //var defaultParameters = new Dictionary<string, object> {
-      //  ["max_depth"] = 3,
-      //  ["learning_rate"] = 0.1f,
-      //  ["n_estimators"] = 100,
-      //  ["silent"] = true,
-      //  ["objective"] = "binary:logistic",
-      //  ["nthread"] = -1,
-      //  ["gamma"] = 0,
-      //  ["min_child_weight"] = 1,
-      //  ["max_delta_step"] = 0,
-      //  ["subsample"] = 1,
-      //  ["colsample_bytree"] = 1,
-      //  ["colsample_bylevel"] = 1,
-      //  ["reg_alpha"] = 0,
-      //  ["reg_lambda"] = 1,
-      //  ["scale_pos_weight"] = 1,
-      //  ["base_score"] = 0.5f,
-      //  ["seed"] = 0,
-      //  ["missing"] = float.NaN,
-      //  ["_Booster"] = null
-      //};
+      var defaultParameters = new Dictionary<string, object> {
+        ["max_depth"] = 3,
+        ["learning_rate"] = 0.1f,
+        ["n_estimators"] = 100,
+        ["silent"] = true,
+        ["objective"] = "binary:logistic",
+        ["nthread"] = -1,
+        ["gamma"] = 0,
+        ["min_child_weight"] = 1,
+        ["max_delta_step"] = 0,
+        ["subsample"] = 1,
+        ["colsample_bytree"] = 1,
+        ["colsample_bylevel"] = 1,
+        ["reg_alpha"] = 0,
+        ["reg_lambda"] = 1,
+        ["scale_pos_weight"] = 1,
+        ["base_score"] = 0.5f,
+        ["seed"] = 0,
+        ["missing"] = float.NaN,
+        ["_Booster"] = null
+      };
 
         var defaultParameters = new Dictionary<string, object>();
         defaultParameters["max_depth"] = 6;
@@ -213,9 +213,21 @@ namespace XGBoost
       return preds.Select(v => new[] { 1 - v, v } ).ToArray();
     }
     
+    public void SaveModelToFile(string fileName)
+    {
+        booster.Save(fileName);
+    }
+
     public void LoadModelFromFile(string fileName)
     {
         booster = new Booster(fileName);
+    }
+
+    public string[] DumpModelEx(string fmap = "",
+                                 int with_stats = 0,
+                                 string format = "text")
+    {
+        return booster.DumpModelEx(fmap, with_stats,format);
     }
 
     private Booster Train(IDictionary<string, object> args, DMatrix dTrain, int numBoostRound = 10)
