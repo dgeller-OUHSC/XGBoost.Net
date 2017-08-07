@@ -27,7 +27,6 @@ namespace XGBoost.lib
             catch (Exception ex)
             {
                 //attempt to load lib from default path
-                LoadLibrary("libxgboost.dll");
                 //LoadLibrary("libxgboost");
             }
 

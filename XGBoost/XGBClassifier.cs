@@ -96,12 +96,20 @@ namespace XGBoost
       parameters["_Booster"] = null;
     }
 
+        private DMatrix XGBTrain { get; set; }
 
     public XGBClassifier(IDictionary<string, object> p_parameters)
     {
         parameters = p_parameters;
     }
 
+    public void Init(float[][] data, float[] labels)
+        {
+           XGBTrain= new DMatrix(data, labels);
+            booster = new Booster(XGBTrain);
+            booster.SetParametersGeneric(parameters);
+        }
+            
     /// <summary>
     ///   Fit the gradient boosting model
     /// </summary>
@@ -125,48 +133,48 @@ namespace XGBoost
 
     public static Dictionary<string, object> GetDefaultParameters()
     {
-      //var defaultParameters = new Dictionary<string, object> {
-      //  ["max_depth"] = 3,
-      //  ["learning_rate"] = 0.1f,
-      //  ["n_estimators"] = 100,
-      //  ["silent"] = true,
-      //  ["objective"] = "binary:logistic",
-      //  ["nthread"] = -1,
-      //  ["gamma"] = 0,
-      //  ["min_child_weight"] = 1,
-      //  ["max_delta_step"] = 0,
-      //  ["subsample"] = 1,
-      //  ["colsample_bytree"] = 1,
-      //  ["colsample_bylevel"] = 1,
-      //  ["reg_alpha"] = 0,
-      //  ["reg_lambda"] = 1,
-      //  ["scale_pos_weight"] = 1,
-      //  ["base_score"] = 0.5f,
-      //  ["seed"] = 0,
-      //  ["missing"] = float.NaN,
-      //  ["_Booster"] = null
-      //};
+      var defaultParameters = new Dictionary<string, object> {
+        ["max_depth"] = 3,
+        ["learning_rate"] = 0.1f,
+        ["n_estimators"] = 100,
+        ["silent"] = true,
+        ["objective"] = "binary:logistic",
+        ["nthread"] = -1,
+        ["gamma"] = 0.0,
+        ["min_child_weight"] = 1.0,
+        ["max_delta_step"] = 0.0,
+        ["subsample"] = 1.0,
+        ["colsample_bytree"] = 1.0,
+        ["colsample_bylevel"] = 1.0,
+        ["reg_alpha"] = 0.0,
+        ["reg_lambda"] = 1.0,
+        ["scale_pos_weight"] = 1.0,
+        ["base_score"] = 0.5f,
+        ["seed"] = 0.0,
+        ["missing"] = float.NaN,
+        ["_Booster"] = null
+      };
 
-        var defaultParameters = new Dictionary<string, object>();
-        defaultParameters["max_depth"] = 6;
-        //defaultParameters["learning_rate"] = 0.3f;
-        defaultParameters["n_estimators"] = 100;
-        defaultParameters["silent"] = true;
-        defaultParameters["objective"] = "binary:logistic";
-        defaultParameters["nthread"] = -1;
-        defaultParameters["gamma"] = 0;
-        defaultParameters["min_child_weight"] = 1;
-        defaultParameters["max_delta_step"] = 0;
-        defaultParameters["subsample"] = 1;
-        defaultParameters["colsample_bytree"] = 1;
-        defaultParameters["colsample_bylevel"] = 1;
-        defaultParameters["reg_alpha"] = 0;
-        defaultParameters["reg_lambda"] = 1;
-        defaultParameters["scale_pos_weight"] = 1;
-        defaultParameters["base_score"] = 0.5f;
-        defaultParameters["seed"] = 0;
-        defaultParameters["missing"] = float.NaN;
-        defaultParameters["_Booster"] = null;
+        //var defaultParameters = new Dictionary<string, object>();
+        //defaultParameters["max_depth"] = 6;
+        ////defaultParameters["learning_rate"] = 0.3f;
+        //defaultParameters["n_estimators"] = 100;
+        //defaultParameters["silent"] = true;
+        //defaultParameters["objective"] = "binary:logistic";
+        //defaultParameters["nthread"] = -1;
+        //defaultParameters["gamma"] = 0;
+        //defaultParameters["min_child_weight"] = 1;
+        //defaultParameters["max_delta_step"] = 0;
+        //defaultParameters["subsample"] = 1;
+        //defaultParameters["colsample_bytree"] = 1;
+        //defaultParameters["colsample_bylevel"] = 1;
+        //defaultParameters["reg_alpha"] = 0;
+        //defaultParameters["reg_lambda"] = 1;
+        //defaultParameters["scale_pos_weight"] = 1;
+        //defaultParameters["base_score"] = 0.5f;
+        //defaultParameters["seed"] = 0;
+        //defaultParameters["missing"] = float.NaN;
+        //defaultParameters["_Booster"] = null;
 
         return defaultParameters;
     }
@@ -213,9 +221,26 @@ namespace XGBoost
       return preds.Select(v => new[] { 1 - v, v } ).ToArray();
     }
     
+    public void SaveModelToFile(string fileName)
+    {
+        booster.Save(fileName);
+    }
+
     public void LoadModelFromFile(string fileName)
     {
         booster = new Booster(fileName);
+    }
+
+    public string[] DumpModelEx(string fmap = "",
+                                 int with_stats = 0,
+                                 string format = "text")
+    {
+        return booster.DumpModelEx(fmap, with_stats,format);
+    }
+
+    public void Update(int i)
+    {
+        booster.Update(XGBTrain, i);
     }
 
     private Booster Train(IDictionary<string, object> args, DMatrix dTrain, int numBoostRound = 10)
@@ -224,6 +249,7 @@ namespace XGBoost
       for (int i = 0; i < numBoostRound; i++) { bst.Update(dTrain, i); }
       return bst;
     }
+
 
     private Booster Train(IDictionary<string, object> args, DMatrix dTrain, int numBoostRound = 10, IDictionary<string, object> p_parameters = null)
     {
